@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.Spark;
 import com.ctre.CANTalon;
+import edu.wpi.first.wpilibj.CameraServer;
 
 /**
  * This is a demo program showing how to use Mecanum control with the RobotDrive class.
@@ -27,27 +28,30 @@ public class Robot extends SampleRobot implements PIDOutput {
     Joystick controller;
     
     CANTalon frontLeft = new CANTalon(7);
-    CANTalon rearLeft = new CANTalon(8);
+    CANTalon rearLeft = new CANTalon(6);
     CANTalon frontRight = new CANTalon(5);
-    CANTalon rearRight = new CANTalon(6);
+    CANTalon rearRight = new CANTalon(8);
     Spark shooter = new Spark(0);
     
     AHRS ahrs;
     PIDController turnController;
     double rotateToAngleRate;
     
-    static final double kP = 0.1;
+    static final double kP = 0.01;
     static final double kI = 0.00;
     static final double kD = 0.00;
     static final double kF = 0.00;
     
     static final double kToleranceDegrees = 2.0f;
     
+    double climbAccum;
     
     // The channel on the driver station that the joystick is connected to
     final int joystickChannel	= 0;
 
     public Robot() {
+    	CameraServer.getInstance().startAutomaticCapture();
+    	
         robotDrive = new RobotDrive(frontLeft, rearLeft, frontRight, rearRight);
     	robotDrive.setInvertedMotor(MotorType.kFrontLeft, true);	// invert the left side motors
     	robotDrive.setInvertedMotor(MotorType.kRearLeft, true);		// you may need to change or remove this to match your robot
@@ -60,6 +64,8 @@ public class Robot extends SampleRobot implements PIDOutput {
         turnController.setOutputRange(-1.0, 1.0);
         turnController.setAbsoluteTolerance(kToleranceDegrees);
         turnController.setContinuous(true);
+        
+        climbAccum = 0.0;
         
     }
 
@@ -77,7 +83,7 @@ public class Robot extends SampleRobot implements PIDOutput {
                 turnController.setSetpoint(0.0f);
                 rotateToAngle = true;
             } else if ( controller.getRawButton(3)) {
-                turnController.setSetpoint(90.0f);
+                turnController.setSetpoint(45.0f);
                 rotateToAngle = true;
             } else if ( controller.getRawButton(4)) {
                 turnController.setSetpoint(179.9f);
@@ -100,16 +106,18 @@ public class Robot extends SampleRobot implements PIDOutput {
                 /* calculated rotation rate (or joystick Z axis),         */
                 /* depending upon whether "rotate to angle" is active.    */
                 robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), 
-                                               currentRotationRate, ahrs.getAngle());
+                                               currentRotationRate,0);
             } catch( RuntimeException ex ) {
                 DriverStation.reportError("Error communicating with drive system:  " + ex.getMessage(), true);
             }
             
         	// Use the joystick X axis for lateral movement, Y axis for forward movement, and Z axis for rotation.
         	// This sample does not use field-oriented drive, so the gyro input is set to zero.
-            robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4),0);
+            robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4), ahrs.getAngle());
             
-            shooter.set(controller.getRawAxis(3));
+            climbAccum = controller.getRawAxis(3) + controller.getRawAxis(4);
+            
+            shooter.set(climbAccum);
             
             Timer.delay(0.005);	// wait 5ms to avoid hogging CPU cycles
         }
