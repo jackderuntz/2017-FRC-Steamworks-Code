@@ -14,8 +14,11 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Spark;
 import com.ctre.CANTalon;
+import com.ctre.CANTalon.FeedbackDevice;
+
 import edu.wpi.first.wpilibj.CameraServer;
 
 /**
@@ -56,6 +59,11 @@ public class Robot extends SampleRobot implements PIDOutput {
     	robotDrive.setInvertedMotor(MotorType.kFrontLeft, true);	// invert the left side motors
     	robotDrive.setInvertedMotor(MotorType.kRearLeft, true);		// you may need to change or remove this to match your robot
         robotDrive.setExpiration(0.1);
+        
+        frontLeft.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        frontRight.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        rearLeft.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        rearLeft.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 
         controller = new Joystick(joystickChannel);
         ahrs = new AHRS(SPI.Port.kMXP);
@@ -118,6 +126,20 @@ public class Robot extends SampleRobot implements PIDOutput {
             climbAccum = controller.getRawAxis(3) + controller.getRawAxis(4);
             
             shooter.set(climbAccum);
+            
+            double EBL = rearLeft.getEncPosition();
+            double EBR = rearRight.getSpeed();
+            double EFL = frontLeft.getSpeed();
+            double EFR = frontRight.getSpeed();
+            double EBL2 = rearLeft.getSpeed();
+            double FPS = (((EBL2/4096)*Math.PI*2)*3);
+            SmartDashboard.putNumber("Rear Left", EBL);
+            SmartDashboard.putNumber("Rear Left Speed", EBL2);
+            SmartDashboard.putNumber("Velocity Test", FPS);
+            SmartDashboard.putNumber("Rear Right", EBR);
+            SmartDashboard.putNumber("Front Left", EFL);
+            SmartDashboard.putNumber("Front Right", EFR);
+           
             
             Timer.delay(0.005);	// wait 5ms to avoid hogging CPU cycles
         }
