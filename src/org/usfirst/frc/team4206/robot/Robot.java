@@ -73,6 +73,8 @@ public class Robot extends SampleRobot implements PIDOutput {
         turnController.setAbsoluteTolerance(kToleranceDegrees);
         turnController.setContinuous(true);
         
+        LiveWindow.addActuator("DriveSystem", "RotateController", turnController);
+        
         climbAccum = 0.0;
         
     }
@@ -83,6 +85,7 @@ public class Robot extends SampleRobot implements PIDOutput {
     public void operatorControl() {
         robotDrive.setSafetyEnabled(false);
         while (isOperatorControl() & isEnabled()) {
+/*----------Drive Train-------------------------------------------------------------*/        	
         	boolean rotateToAngle = false;
             if ( controller.getRawButton(1)) {
                 ahrs.reset();
@@ -126,19 +129,20 @@ public class Robot extends SampleRobot implements PIDOutput {
             climbAccum = controller.getRawAxis(3) + controller.getRawAxis(4);
             
             shooter.set(climbAccum);
-            
-            double EBL = rearLeft.getEncPosition();
-            double EBR = rearRight.getSpeed();
-            double EFL = frontLeft.getSpeed();
-            double EFR = frontRight.getSpeed();
-            double EBL2 = rearLeft.getSpeed();
-            double FPS = (((EBL2/4096)*Math.PI*2)*3);
-            SmartDashboard.putNumber("Rear Left", EBL);
-            SmartDashboard.putNumber("Rear Left Speed", EBL2);
-            SmartDashboard.putNumber("Velocity Test", FPS);
-            SmartDashboard.putNumber("Rear Right", EBR);
-            SmartDashboard.putNumber("Front Left", EFL);
-            SmartDashboard.putNumber("Front Right", EFR);
+
+/*----------Encoders----------------------------------------------------------------*/
+            double EncRearLeftPos = rearLeft.getEncPosition();
+            double EncRearRightSpeed = rearRight.getSpeed();
+            double EncFrontLeftSpeed = frontLeft.getSpeed();
+            double EncFrontRightSpeed = frontRight.getSpeed();
+            double EncRearLeftSpeed = rearLeft.getSpeed();
+            double FeetPerSecond = (((EncRearLeftSpeed/4096)*Math.PI*2)*3);
+            SmartDashboard.putNumber("Rear Left Position", EncRearLeftPos);
+            SmartDashboard.putNumber("Rear Left Speed", EncRearLeftSpeed);
+            SmartDashboard.putNumber("Rear Right Speed", EncRearRightSpeed);
+            SmartDashboard.putNumber("Front Left Speed", EncFrontLeftSpeed);
+            SmartDashboard.putNumber("Front Right Speed", EncFrontRightSpeed);
+            SmartDashboard.putNumber("Velocity Rear Left", FeetPerSecond);
            
             
             Timer.delay(0.005);	// wait 5ms to avoid hogging CPU cycles
