@@ -22,7 +22,7 @@ import com.ctre.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CameraServer;
 
 /**
- * This is a demo program showing how to use Mecanum control with the RobotDrive class.
+ * 2017 Team 4206 Java Code
  */
 
 public class Robot extends SampleRobot implements PIDOutput {
@@ -76,6 +76,7 @@ public class Robot extends SampleRobot implements PIDOutput {
         LiveWindow.addActuator("DriveSystem", "RotateController", turnController);
         
         climbAccum = 0.0;
+        
         
     }
 
@@ -143,6 +144,12 @@ public class Robot extends SampleRobot implements PIDOutput {
             SmartDashboard.putNumber("Front Left Speed", EncFrontLeftSpeed);
             SmartDashboard.putNumber("Front Right Speed", EncFrontRightSpeed);
             SmartDashboard.putNumber("Velocity Rear Left", FeetPerSecond);
+            
+/*----------Gyro--------------------------------------------------------------------*/
+            SmartDashboard.putNumber("Velocity_X", ahrs.getVelocityX());
+            SmartDashboard.putNumber("Velocity_Y", ahrs.getVelocityY());
+            SmartDashboard.putNumber("IMU_Accel_X", ahrs.getWorldLinearAccelX());
+            SmartDashboard.putNumber("IMU_Accel_Y", ahrs.getWorldLinearAccelY());
            
             
             Timer.delay(0.005);	// wait 5ms to avoid hogging CPU cycles
