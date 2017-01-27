@@ -125,7 +125,7 @@ public class Robot extends SampleRobot implements PIDOutput {
             
         	// Use the joystick X axis for lateral movement, Y axis for forward movement, and Z axis for rotation.
         	// This sample does not use field-oriented drive, so the gyro input is set to zero.
-            robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4), ahrs.getAngle());
+            robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4), 0);
             
             climbAccum = controller.getRawAxis(3) + controller.getRawAxis(4);
             
