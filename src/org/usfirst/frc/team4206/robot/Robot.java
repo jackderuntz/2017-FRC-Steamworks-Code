@@ -35,15 +35,16 @@ public class Robot extends SampleRobot implements PIDOutput {
     CANTalon frontRight = new CANTalon(5);
     CANTalon rearRight = new CANTalon(8);
     Spark shooter = new Spark(0);
+    Joystick ClimbStick = new Joystick(1);
     
     AHRS ahrs;
     PIDController turnController;
     double rotateToAngleRate;
     
-    static final double kP = 0.01;
-    static final double kI = 0.00;
-    static final double kD = 0.00;
-    static final double kF = 0.00;
+    static final double kP = 15;
+    static final double kI = 10;
+    static final double kD = 10;
+    static final double kF = 10;
     
     static final double kToleranceDegrees = 2.0f;
     
@@ -85,6 +86,7 @@ public class Robot extends SampleRobot implements PIDOutput {
      */
     public void operatorControl() {
         robotDrive.setSafetyEnabled(false);
+        
         while (isOperatorControl() & isEnabled()) {
 /*----------Drive Train-------------------------------------------------------------*/        	
         	boolean rotateToAngle = false;
@@ -127,9 +129,17 @@ public class Robot extends SampleRobot implements PIDOutput {
         	// This sample does not use field-oriented drive, so the gyro input is set to zero.
             robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4), 0);
             
-            climbAccum = controller.getRawAxis(3) + controller.getRawAxis(4);
+            climbAccum = controller.getRawAxis(2) + controller.getRawAxis(3);
+
+            double leftTrigger = controller.getRawAxis(3);
+    		
+            if (leftTrigger < 0)
+            	leftTrigger = -leftTrigger;
+            shooter.set(controller.getRawAxis(2));
+            shooter.set(ClimbStick.getRawAxis(0));
             
-            shooter.set(climbAccum);
+
+            
 
 /*----------Encoders----------------------------------------------------------------*/
             double EncRearLeftPos = rearLeft.getEncPosition();
@@ -160,7 +170,14 @@ public class Robot extends SampleRobot implements PIDOutput {
 	@Override
 	public void pidWrite(double output) {
 		rotateToAngleRate = output;
-		
+
 	}
-    
+
+	public void test() {
+			while (isTest() && isEnabled()) {
+				LiveWindow.run();
+				Timer.delay(0.1);
+			}
+	}
 }
+    
