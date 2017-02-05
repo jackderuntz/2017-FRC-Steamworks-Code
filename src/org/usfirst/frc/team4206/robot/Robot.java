@@ -34,8 +34,11 @@ public class Robot extends SampleRobot implements PIDOutput {
     CANTalon rearLeft = new CANTalon(6);
     CANTalon frontRight = new CANTalon(5);
     CANTalon rearRight = new CANTalon(8);
+    CANTalon climbermaster = new CANTalon(9);
+    CANTalon climberslave = new CANTalon (10);
     Spark shooter = new Spark(0);
     Joystick ClimbStick = new Joystick(1);
+    
     
     AHRS ahrs;
     PIDController turnController;
@@ -56,18 +59,27 @@ public class Robot extends SampleRobot implements PIDOutput {
     public Robot() {
     	CameraServer.getInstance().startAutomaticCapture();
     	
+    	//Mecanum Drive Train
         robotDrive = new RobotDrive(frontLeft, rearLeft, frontRight, rearRight);
     	robotDrive.setInvertedMotor(MotorType.kFrontLeft, true);	// invert the left side motors
     	robotDrive.setInvertedMotor(MotorType.kRearLeft, true);		// you may need to change or remove this to match your robot
         robotDrive.setExpiration(0.1);
         
+        //Encoders for each Talon SRX
         frontLeft.setFeedbackDevice(FeedbackDevice.QuadEncoder);
         frontRight.setFeedbackDevice(FeedbackDevice.QuadEncoder);
         rearLeft.setFeedbackDevice(FeedbackDevice.QuadEncoder);
         rearLeft.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        
+        //Sets 2nd climber TalonSRX to FOllower mode
+        climberslave.changeControlMode(CANTalon.TalonControlMode.Follower);
+        climberslave.set(climbermaster.getDeviceID());
 
+        //Extra Stuff
         controller = new Joystick(joystickChannel);
         ahrs = new AHRS(SPI.Port.kMXP);
+        
+        //PID Controller for Rotate to Angle Mode
         turnController = new PIDController(kP, kI, kD, kF, ahrs, this);
         turnController.setInputRange(-180.0f,  180.0f);
         turnController.setOutputRange(-1.0, 1.0);
@@ -108,17 +120,13 @@ public class Robot extends SampleRobot implements PIDOutput {
             }
             double currentRotationRate;
             if ( rotateToAngle ) {
-                turnController.enable();
-                currentRotationRate = rotateToAngleRate;
+                turnController.enable();					//This switches the rotate control from the PID controller
+                currentRotationRate = rotateToAngleRate;	//To the driver conroller's joystick
             } else {
                 turnController.disable();
                 currentRotationRate = controller.getRawAxis(4);
             }
             try {
-                /* Use the joystick X axis for lateral movement,          */
-                /* Y axis for forward movement, and the current           */
-                /* calculated rotation rate (or joystick Z axis),         */
-                /* depending upon whether "rotate to angle" is active.    */
                 robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), 
                                                currentRotationRate,0);
             } catch( RuntimeException ex ) {
@@ -129,14 +137,10 @@ public class Robot extends SampleRobot implements PIDOutput {
         	// This sample does not use field-oriented drive, so the gyro input is set to zero.
             robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4), 0);
             
-            climbAccum = controller.getRawAxis(2) + controller.getRawAxis(3);
 
-            double leftTrigger = controller.getRawAxis(3);
-    		
-            if (leftTrigger < 0)
-            	leftTrigger = -leftTrigger;
-            shooter.set(controller.getRawAxis(2));
-            shooter.set(ClimbStick.getRawAxis(0));
+/*----------Climber-----------------------------------------------------------------*/
+            climbermaster.set(controller.getRawAxis(2));
+            climbermaster.set(ClimbStick.getRawAxis(0));
             
 
             
