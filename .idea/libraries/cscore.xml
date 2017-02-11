@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="cscore">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/build/jars/cscore.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/jars/NetworkTables.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/jars/opencv.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/jars/TalonSRXLibJava.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/jars/WPILib.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/jars/navx_frc.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/build/jars/navx_frc.jar!/docs" />
+    </JAVADOC>
+    <SOURCES />
+  </library>
+</component>

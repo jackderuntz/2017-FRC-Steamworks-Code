@@ -30,12 +30,12 @@ public class Robot extends SampleRobot implements PIDOutput {
     RobotDrive robotDrive;
     Joystick controller;
     
-    CANTalon frontLeft = new CANTalon(7);
-    CANTalon rearLeft = new CANTalon(6);
-    CANTalon frontRight = new CANTalon(5);
+    CANTalon frontLeft = new CANTalon(3);
+    CANTalon rearLeft = new CANTalon(9);
+    CANTalon frontRight = new CANTalon(2);
     CANTalon rearRight = new CANTalon(8);
-    CANTalon climbermaster = new CANTalon(9);
-    CANTalon climberslave = new CANTalon (10);
+    CANTalon climbermaster = new CANTalon(5);
+    CANTalon climberslave = new CANTalon (6);
     Spark shooter = new Spark(0);
     Joystick ClimbStick = new Joystick(1);
     
@@ -61,8 +61,8 @@ public class Robot extends SampleRobot implements PIDOutput {
     	
     	//Mecanum Drive Train
         robotDrive = new RobotDrive(frontLeft, rearLeft, frontRight, rearRight);
-    	robotDrive.setInvertedMotor(MotorType.kFrontLeft, true);	// invert the left side motors
-    	robotDrive.setInvertedMotor(MotorType.kRearLeft, true);		// you may need to change or remove this to match your robot
+    	robotDrive.setInvertedMotor(MotorType.kFrontRight, true);	// invert the right side motors
+    	robotDrive.setInvertedMotor(MotorType.kRearRight, true);		// you may need to change or remove this to match your robot
         robotDrive.setExpiration(0.1);
         
         //Encoders for each Talon SRX
@@ -135,7 +135,6 @@ public class Robot extends SampleRobot implements PIDOutput {
             
         	// Use the joystick X axis for lateral movement, Y axis for forward movement, and Z axis for rotation.
         	// This sample does not use field-oriented drive, so the gyro input is set to zero.
-            robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), controller.getRawAxis(4), 0);
             
 
 /*----------Climber-----------------------------------------------------------------*/
