@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.Spark;
 import com.ctre.CANTalon;
 import com.ctre.CANTalon.FeedbackDevice;
 
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 
 /**
@@ -28,7 +29,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 public class Robot extends SampleRobot implements PIDOutput {
 	
     RobotDrive robotDrive;
-    Joystick controller;
+    Joystick driver;
     
     CANTalon frontLeft = new CANTalon(3);
     CANTalon rearLeft = new CANTalon(9);
@@ -37,7 +38,7 @@ public class Robot extends SampleRobot implements PIDOutput {
     CANTalon climbermaster = new CANTalon(5);
     CANTalon climberslave = new CANTalon (6);
     Spark shooter = new Spark(0);
-    Joystick ClimbStick = new Joystick(1);
+    Joystick operator = new Joystick(1);
     
     
     AHRS ahrs;
@@ -57,7 +58,9 @@ public class Robot extends SampleRobot implements PIDOutput {
     final int joystickChannel	= 0;
 
     public Robot() {
-    	CameraServer.getInstance().startAutomaticCapture();
+    	UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+        camera.setResolution(360, 240);
+    	
     	
     	//Mecanum Drive Train
         robotDrive = new RobotDrive(frontLeft, rearLeft, frontRight, rearRight);
@@ -76,7 +79,7 @@ public class Robot extends SampleRobot implements PIDOutput {
         climberslave.set(climbermaster.getDeviceID());
 
         //Extra Stuff
-        controller = new Joystick(joystickChannel);
+        driver = new Joystick(joystickChannel);
         ahrs = new AHRS(SPI.Port.kMXP);
         
         //PID Controller for Rotate to Angle Mode
@@ -90,7 +93,11 @@ public class Robot extends SampleRobot implements PIDOutput {
         
         climbAccum = 0.0;
         
+        /*--------------------------------------------------------------------------*/
         
+        double y = 0;
+        double x = 0;
+        double turn = 0;
     }
 
     /**
@@ -100,35 +107,75 @@ public class Robot extends SampleRobot implements PIDOutput {
         robotDrive.setSafetyEnabled(false);
         
         while (isOperatorControl() & isEnabled()) {
+/*----------driver Dead Zone----------------------------------------------------*/
+            double y = 0;
+            double x = 0;
+            double turn = 0;
+            double climbx = 0;
+            double climby = 0;
+            
+            	
+            	
+            if (driver.getX()>0.15||driver.getX()<-0.15){
+            	x=driver.getX();	
+            }
+            if (driver.getY()>0.15||driver.getY()<-0.15){
+            	y=driver.getY();
+            }
+            if (driver.getRawAxis(4)>0.15||driver.getRawAxis(4)<-0.15){
+            	turn=driver.getRawAxis(4);
+            }
+            if (operator.getRawAxis(1)>0.3||operator.getRawAxis(1)<-0.3){
+            	climbx=operator.getRawAxis(1);
+            }
 /*----------Drive Train-------------------------------------------------------------*/        	
         	boolean rotateToAngle = false;
-            if ( controller.getRawButton(1)) {
+            if ( operator.getRawButton(1)) {
                 ahrs.reset();
             }
-            if ( controller.getRawButton(2)) {
-                turnController.setSetpoint(0.0f);
-                rotateToAngle = true;
-            } else if ( controller.getRawButton(3)) {
-                turnController.setSetpoint(45.0f);
-                rotateToAngle = true;
-            } else if ( controller.getRawButton(4)) {
-                turnController.setSetpoint(179.9f);
-                rotateToAngle = true;
-            } else if ( controller.getRawButton(5)) {
-                turnController.setSetpoint(-90.0f);
-                rotateToAngle = true;
+            switch (operator.getPOV()){
+            case 45:
+            	turnController.setSetpoint(45.0f);
+            	rotateToAngle = true;
+            	break;
+            case 90:
+            	turnController.setSetpoint(90.0f);
+            	rotateToAngle = true;
+            	break;
+            case 135:
+            	turnController.setSetpoint(135.0f);
+            	rotateToAngle = true;
+            	break;
+            case 180:
+            	turnController.setSetpoint(179.9f);
+            	rotateToAngle = true;
+            	break;
+            case 225:
+            	turnController.setSetpoint(-135.0f);
+            	rotateToAngle = true;
+            	break;
+            case 270:
+            	turnController.setSetpoint(-90.0f);
+            	rotateToAngle = true;
+            	break;
+            case 315:
+            	turnController.setSetpoint(-45.0f);
+            	rotateToAngle = true;
+            	break;
+            default:
+            	break;
             }
+          
             double currentRotationRate;
             if ( rotateToAngle ) {
                 turnController.enable();					//This switches the rotate control from the PID controller
                 currentRotationRate = rotateToAngleRate;	//To the driver conroller's joystick
             } else {
                 turnController.disable();
-                currentRotationRate = controller.getRawAxis(4);
+                currentRotationRate = turn;
             }
             try {
-                robotDrive.mecanumDrive_Cartesian(controller.getX(), controller.getY(), 
-                                               currentRotationRate,0);
+            		robotDrive.mecanumDrive_Cartesian(x, y, currentRotationRate,0);
             } catch( RuntimeException ex ) {
                 DriverStation.reportError("Error communicating with drive system:  " + ex.getMessage(), true);
             }
@@ -138,8 +185,8 @@ public class Robot extends SampleRobot implements PIDOutput {
             
 
 /*----------Climber-----------------------------------------------------------------*/
-            climbermaster.set(controller.getRawAxis(2));
-            climbermaster.set(ClimbStick.getRawAxis(0));
+            climbermaster.set(climbx);
+            climbermaster.set(climbx);
             
 
             
