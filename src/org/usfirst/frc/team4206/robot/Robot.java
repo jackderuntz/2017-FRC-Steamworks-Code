@@ -93,11 +93,7 @@ public class Robot extends SampleRobot implements PIDOutput {
         
         climbAccum = 0.0;
         
-        /*--------------------------------------------------------------------------*/
         
-        double y = 0;
-        double x = 0;
-        double turn = 0;
     }
 
     /**
@@ -112,7 +108,6 @@ public class Robot extends SampleRobot implements PIDOutput {
             double x = 0;
             double turn = 0;
             double climbx = 0;
-            double climby = 0;
             
             	
             	
