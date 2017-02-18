@@ -3,6 +3,8 @@ package org.usfirst.frc.team4206.robot;
 
 
 import edu.wpi.first.wpilibj.SampleRobot;
+import edu.wpi.first.wpilibj.SerialPort.Port;
+
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
@@ -12,12 +14,14 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Spark;
 import com.ctre.CANTalon;
 import com.ctre.CANTalon.FeedbackDevice;
+import org.usfirst.frc.team4206.robot.REVDigitBoard;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -39,16 +43,17 @@ public class Robot extends SampleRobot implements PIDOutput {
     CANTalon climberslave = new CANTalon (6);
     Spark shooter = new Spark(0);
     Joystick operator = new Joystick(1);
+    Relay led = new Relay(0);
     
     
     AHRS ahrs;
     PIDController turnController;
     double rotateToAngleRate;
     
-    static final double kP = 15;
-    static final double kI = 10;
-    static final double kD = 10;
-    static final double kF = 10;
+    static final double kP = .1;
+    static final double kI = 0;
+    static final double kD = 2;
+    static final double kF = 0;
     
     static final double kToleranceDegrees = 2.0f;
     
@@ -60,6 +65,8 @@ public class Robot extends SampleRobot implements PIDOutput {
     public Robot() {
     	UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
         camera.setResolution(360, 240);
+        
+
     	
     	
     	//Mecanum Drive Train
@@ -80,7 +87,7 @@ public class Robot extends SampleRobot implements PIDOutput {
 
         //Extra Stuff
         driver = new Joystick(joystickChannel);
-        ahrs = new AHRS(SPI.Port.kMXP);
+        ahrs = new AHRS(Port.kMXP);
         
         //PID Controller for Rotate to Angle Mode
         turnController = new PIDController(kP, kI, kD, kF, ahrs, this);
@@ -96,6 +103,7 @@ public class Robot extends SampleRobot implements PIDOutput {
         
     }
 
+    
     /**
      * Runs the motors with Mecanum drive.
      */
@@ -103,6 +111,10 @@ public class Robot extends SampleRobot implements PIDOutput {
         robotDrive.setSafetyEnabled(false);
         
         while (isOperatorControl() & isEnabled()) {
+        	
+         led.set(Relay.Value.kReverse);
+         led.set(Relay.Value.kOn);
+            
 /*----------driver Dead Zone----------------------------------------------------*/
             double y = 0;
             double x = 0;
