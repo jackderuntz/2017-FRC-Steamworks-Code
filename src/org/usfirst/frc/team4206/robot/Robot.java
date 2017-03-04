@@ -35,19 +35,19 @@ public class Robot extends SampleRobot implements PIDOutput {
     RobotDrive robotDrive;
     Joystick driver;
     
-    CANTalon frontLeft = new CANTalon(3);
-    CANTalon rearLeft = new CANTalon(9);
-    CANTalon frontRight = new CANTalon(2);
-    CANTalon rearRight = new CANTalon(8);
-    CANTalon climbermaster = new CANTalon(5);
-    CANTalon climberslave = new CANTalon (6);
+    CANTalon frontLeft = new CANTalon(2);
+    CANTalon rearLeft = new CANTalon(4);
+    CANTalon frontRight = new CANTalon(3);
+    CANTalon rearRight = new CANTalon(5);
+    CANTalon climbermaster = new CANTalon(6);
+    CANTalon climberslave = new CANTalon (7);
     Spark shooter = new Spark(0);
     Joystick operator = new Joystick(1);
     Relay led = new Relay(0);
     
     
     AHRS ahrs;
-    PIDController turnController;
+    //PIDController turnController;
     double rotateToAngleRate;
     
     static final double kP = .1;
@@ -90,13 +90,14 @@ public class Robot extends SampleRobot implements PIDOutput {
         ahrs = new AHRS(Port.kMXP);
         
         //PID Controller for Rotate to Angle Mode
+        /*
         turnController = new PIDController(kP, kI, kD, kF, ahrs, this);
         turnController.setInputRange(-180.0f,  180.0f);
         turnController.setOutputRange(-1.0, 1.0);
         turnController.setAbsoluteTolerance(kToleranceDegrees);
         turnController.setContinuous(true);
-        
-        LiveWindow.addActuator("DriveSystem", "RotateController", turnController);
+        */
+      //  LiveWindow.addActuator("DriveSystem", "RotateController", turnController);
         
         climbAccum = 0.0;
         
@@ -136,6 +137,7 @@ public class Robot extends SampleRobot implements PIDOutput {
             	climbx=operator.getRawAxis(1);
             }
 /*----------Drive Train-------------------------------------------------------------*/        	
+        	/*
         	boolean rotateToAngle = false;
             if ( operator.getRawButton(1)) {
                 ahrs.reset();
@@ -181,8 +183,10 @@ public class Robot extends SampleRobot implements PIDOutput {
                 turnController.disable();
                 currentRotationRate = turn;
             }
+            */
             try {
-            		robotDrive.mecanumDrive_Cartesian(x, y, currentRotationRate,0);
+            	//robotDrive.mecanumDrive_Cartesian(x, y, currentRotationRate,0);
+            	robotDrive.mecanumDrive_Cartesian(x, y, driver.getRawAxis(5), 0);
             } catch( RuntimeException ex ) {
                 DriverStation.reportError("Error communicating with drive system:  " + ex.getMessage(), true);
             }
@@ -226,8 +230,7 @@ public class Robot extends SampleRobot implements PIDOutput {
 
 	@Override
 	public void pidWrite(double output) {
-		rotateToAngleRate = output;
-
+		//rotateToAngleRate = output;
 	}
 
 	public void test() {

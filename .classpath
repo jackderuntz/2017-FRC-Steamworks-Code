@@ -12,6 +12,6 @@
 	<classpathentry kind="lib" path="C:/Users/Jack/wpilib/user/java/lib/navx_frc.jar"/>
 	<classpathentry kind="var" path="USERLIBS_DIR/navx_frc.jar"/>
 	<classpathentry kind="lib" path="/Users/jackderuntz/wpilib/user/java/lib/navx_frc.jar"/>
-	<classpathentry kind="var" path="USERLIBS_DIR/CTRLib.jar"/>
+	<classpathentry kind="var" path="USERLIBS_DIR/opencv_java310.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
